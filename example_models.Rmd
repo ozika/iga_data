@@ -14,6 +14,68 @@ library(emmeans)
 library(sjPlot)
 library(sjmisc)
 library(ggplot2)
+library(RColorBrewer)
+library(PupillometryR)
+here::i_am(".iga_root")
+here::here()
+
+
+```
+
+```{r}
+data <- read.csv(here::here("df_merge.csv"))
+data$FO <- data$Fractional.occupancy....
+data$DT <- data$Dwell.time..s.
+data$Subject <- as.factor(data$Subject)
+data$Session <- as.factor(data$Session)
+data$Run <- as.factor(data$Run)
+data$State <- as.factor(data$State)
+```
+
+```{r fig.width = 15, fig.height=5}
+g <- ggplot(data = data, aes(y = DT, x = Run, fill = interaction(Run,Session))) +
+geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8, show.legend = TRUE, lwd=1.2) +
+geom_point(aes(y = DT, colour=interaction(Run,Session)),  size = 1, alpha = 0.8, show.legend = FALSE) +
+geom_boxplot(width = .2, outlier.shape = NA, alpha = 0.7,lwd=1.2, show.legend = FALSE) +
+#stat_summary(geom="line", fun="median", size=2, aes(group=drug_str, color=drug_str), alpha=0.5, show.legend = FALSE) +
+#stat_summary(geom="point", fun="median", size=3, aes(group=drug_str, color=drug_str), show.legend = FALSE) +
+#geom_label(data = df2, aes(label = BIC, x = model, fill = drug_str, y = 100),  size=5) +
+#expand_limits(x = 3) 
+#scale_color_manual(values = c(pal[7], pal[9]), name = "group", labels = c("losartan", "placebo")) +
+scale_fill_brewer() + scale_color_brewer() + 
+facet_grid(~State)   
+  # (values = c(pal[7], pal[9]), name = "group", labels = c("losartan", "placebo")) +  
+#theme_bw() +
+#raincloud_theme +
+#labs(y= "Learning rate (Beta model predicted)", x="Visit") 
+g
+
+```
+
+```{r}
+m <-  lmer(FO ~ Run*Session*State + (1|Subject), data=data)
+anova(m)
+```
+
+
+```{r fig.width = 15, fig.height=5}
+g <- ggplot(data = data, aes(y = FO, x = Run, fill = interaction(Run,Session))) +
+geom_flat_violin(position = position_nudge(x = .2, y = 0), alpha = .8, show.legend = TRUE, lwd=1.2) +
+geom_point(aes(y = FO, colour=interaction(Run,Session)),  size = 1, alpha = 0.8, show.legend = FALSE) +
+geom_boxplot(width = .2, outlier.shape = NA, alpha = 0.7,lwd=1.2, show.legend = FALSE) +
+#stat_summary(geom="line", fun="median", size=2, aes(group=drug_str, color=drug_str), alpha=0.5, show.legend = FALSE) +
+#stat_summary(geom="point", fun="median", size=3, aes(group=drug_str, color=drug_str), show.legend = FALSE) +
+#geom_label(data = df2, aes(label = BIC, x = model, fill = drug_str, y = 100),  size=5) +
+#expand_limits(x = 3) 
+#scale_color_manual(values = c(pal[7], pal[9]), name = "group", labels = c("losartan", "placebo")) +
+scale_fill_brewer(palette = 3) + scale_color_brewer(palette = 3) + 
+facet_grid(~State)   
+  # (values = c(pal[7], pal[9]), name = "group", labels = c("losartan", "placebo")) +  
+#theme_bw() +
+#raincloud_theme +
+#labs(y= "Learning rate (Beta model predicted)", x="Visit") 
+g
+
 ```
 
 
